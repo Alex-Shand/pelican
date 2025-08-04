@@ -114,7 +114,7 @@ dependencies = [
 [[package]]
 name = "proc"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#5d0f1f8a9b195dc0b2168cf23f68b0bc324c4634"
+source = "git+https://github.com/Alex-Shand/proc.git#119e37812f9d4b5b0d0eaeb23991bb275c726cc7"
 dependencies = [
  "proc_attribute",
  "proc_common",
@@ -176,7 +176,7 @@ dependencies = [
 [[package]]
 name = "proc_attribute"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#5d0f1f8a9b195dc0b2168cf23f68b0bc324c4634"
+source = "git+https://github.com/Alex-Shand/proc.git#119e37812f9d4b5b0d0eaeb23991bb275c726cc7"
 dependencies = [
  "proc_common",
 ]
@@ -184,7 +184,7 @@ dependencies = [
 [[package]]
 name = "proc_common"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#5d0f1f8a9b195dc0b2168cf23f68b0bc324c4634"
+source = "git+https://github.com/Alex-Shand/proc.git#119e37812f9d4b5b0d0eaeb23991bb275c726cc7"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -196,7 +196,7 @@ dependencies = [
 [[package]]
 name = "proc_derive"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#5d0f1f8a9b195dc0b2168cf23f68b0bc324c4634"
+source = "git+https://github.com/Alex-Shand/proc.git#119e37812f9d4b5b0d0eaeb23991bb275c726cc7"
 dependencies = [
  "convert_case",
  "proc_attribute",
@@ -206,7 +206,7 @@ dependencies = [
 [[package]]
 name = "proc_function"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#5d0f1f8a9b195dc0b2168cf23f68b0bc324c4634"
+source = "git+https://github.com/Alex-Shand/proc.git#119e37812f9d4b5b0d0eaeb23991bb275c726cc7"
 dependencies = [
  "proc_attribute",
  "proc_common",
@@ -215,7 +215,7 @@ dependencies = [
 [[package]]
 name = "proc_parse"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#5d0f1f8a9b195dc0b2168cf23f68b0bc324c4634"
+source = "git+https://github.com/Alex-Shand/proc.git#119e37812f9d4b5b0d0eaeb23991bb275c726cc7"
 dependencies = [
  "proc_common",
  "proc_derive",
@@ -314,7 +314,7 @@ dependencies = [
 [[package]]
 name = "trivial"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/trivial.git#1aac89641bf9ce8da12a9aee6c023cd5fdfa9c18"
+source = "git+https://github.com/Alex-Shand/trivial.git#c437b8f80617db1a01662eb6dd7c92e507e5eba2"
 dependencies = [
  "trivial_derive",
 ]
@@ -322,7 +322,7 @@ dependencies = [
 [[package]]
 name = "trivial_derive"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/trivial.git#1aac89641bf9ce8da12a9aee6c023cd5fdfa9c18"
+source = "git+https://github.com/Alex-Shand/trivial.git#c437b8f80617db1a01662eb6dd7c92e507e5eba2"
 dependencies = [
  "proc",
 ]
