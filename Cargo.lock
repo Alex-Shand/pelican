@@ -314,7 +314,7 @@ dependencies = [
 [[package]]
 name = "trivial"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/trivial.git#31e5a5801efe03e614ffd5816294fe5c8f5c5479"
+source = "git+https://github.com/Alex-Shand/trivial.git#5e5ac8587a24edf74c80b4630bc356343cc03d2c"
 dependencies = [
  "trivial_derive",
 ]
@@ -322,7 +322,7 @@ dependencies = [
 [[package]]
 name = "trivial_derive"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/trivial.git#31e5a5801efe03e614ffd5816294fe5c8f5c5479"
+source = "git+https://github.com/Alex-Shand/trivial.git#5e5ac8587a24edf74c80b4630bc356343cc03d2c"
 dependencies = [
  "proc",
 ]
