@@ -9,7 +9,7 @@ use super::Index;
 ///
 /// Spends a little extra memory to provide a constant time check for whether a
 /// given node is currently somewhere on the stack
-pub(super) struct Stack(RefCell<Inner>);
+pub(crate) struct Stack(RefCell<Inner>);
 
 struct Inner {
     stack: Vec<usize>,
@@ -17,7 +17,7 @@ struct Inner {
 }
 
 impl Stack {
-    pub(super) fn new(size: usize) -> Self {
+    pub(crate) fn new(size: usize) -> Self {
         Self(RefCell::new(Inner {
             stack: Vec::with_capacity(size),
             on_stack: vec![false; size],
@@ -26,13 +26,13 @@ impl Stack {
 
     /// Check if a node is on the stack
     #[track_caller]
-    pub(super) fn contains(&self, Index(index): Index) -> bool {
+    pub(crate) fn contains(&self, Index(index): Index) -> bool {
         self.0.borrow().on_stack[index]
     }
 
     /// Push a node onto the stack
     #[track_caller]
-    pub(super) fn push(&self, Index(index): Index) {
+    pub(crate) fn push(&self, Index(index): Index) {
         let mut this = self.0.borrow_mut();
         this.on_stack[index] = true;
         this.stack.push(index);
@@ -44,7 +44,7 @@ impl Stack {
     /// Returns an iterator which must be consumed to actually remove nodes from
     /// the stack
     #[track_caller]
-    pub(super) fn pop_until(
+    pub(crate) fn pop_until(
         &self,
         index @ Index(node): Index,
     ) -> impl Iterator<Item = Index> {

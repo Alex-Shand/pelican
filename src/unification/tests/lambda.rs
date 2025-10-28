@@ -1,5 +1,4 @@
 use pretty_assertions::assert_eq;
-use trivial::Trivial as _;
 
 use self::{
     builders::*,
@@ -34,7 +33,7 @@ fn id() -> Result<(), TypeError> {
     // id: a -> a
     let a = Var(0);
     assert_eq!(typed::function(0, a, typed::var(0, a)), ast);
-    assert_eq!(typ::function(a, a), typ,);
+    assert_eq!(typ::function(a, a), typ);
     assert_eq!(set![a], unbound);
 
     Ok(())
@@ -236,7 +235,7 @@ fn sks_is_id_sortof() -> Result<(), TypeError> {
     let b = Var(3);
     let c = Var(4);
     let f = typ::function(a, typ::function(b, c));
-    assert_eq!(typ::function(f.dup(), f), typ);
+    assert_eq!(typ::function(f.clone(), f), typ);
     Ok(())
 }
 

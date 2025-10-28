@@ -5,7 +5,7 @@ use super::Index;
 /// To help distinguish the two arguments to [`set`](Lowlink::set) &
 /// [`update`](Lowlink::update)
 #[derive(Copy, Clone)]
-pub(super) struct Root(pub(super) usize);
+pub(crate) struct Root(pub(crate) usize);
 
 /// The goal of this object is to track for each node, the node with the lowest
 /// index which is a member of the same Strongly Connected Component (scc).
@@ -31,11 +31,11 @@ pub(super) struct Root(pub(super) usize);
 ///       have an edge that leaves the current scc and enters a new one. We
 ///       start by traversing through the new node
 ///         * At the end of this process the new node will have some value set
-///           for it's own lowlink
+///           for its own lowlink
 ///         * If this value is less than or equal to ours then the node was part
 ///           of this scc (because the true root node with the lowest index must
 ///           be reachable via some path from the child). We can update our own
-///           lowlink value to the childs in the event it's better
+///           lowlink value to the child's in the event its better
 ///         * If the child's lowlink is greater than ours then it is part of a
 ///           different scc which up until this point we hadn't explored. By the
 ///           time the recursive call terminates we must have explored the the
@@ -45,13 +45,13 @@ pub(super) struct Root(pub(super) usize);
 /// refered to as the root node of the scc) on the way back up through the
 /// recurisve calls. At this point we know the following things about the nodes
 /// involved in the scc
-///  * The root node is the first node from the scc we encountered (by
-///    construction) so it will have the lowest index of all the nodes in the
-///    scc
+/// * The root node is the first node from the scc we encountered (by
+///   construction) so it will have the lowest index of all the nodes in the
+///   scc
 /// * The root node is the only node in the scc where every other node in the
 ///   scc is a strict child (e.g we reach it via the DFS step)
 /// * For every other node in the scc, there is a path back to the root node. As
-///   a result one of the non-root node's decendents must also be it's ancestor.
+///   a result one of the non-root node's decendents must also be its ancestor.
 /// * This means that for every non-root node the lowlink value will be lower
 ///   than that node's index
 /// * So the once we've hit every node in the scc, the only node where the
@@ -67,11 +67,11 @@ pub(super) struct Root(pub(super) usize);
 ///
 /// So once the recursion unwinds to the frame where we detect the root node we
 /// can pop everything off of the stack up to the root node and that is our scc
-pub(super) struct Lowlink(RefCell<Vec<usize>>);
+pub(crate) struct Lowlink(RefCell<Vec<usize>>);
 
 impl Lowlink {
     /// Constructor
-    pub(super) fn new(size: usize) -> Self {
+    pub(crate) fn new(size: usize) -> Self {
         // The update operation is min(current, new) so we use usize::MAX as the
         // sentinel value for an unoccupied slot. This should be fine because
         // practically speaking (on a 64 bit OS) we will never have enough
@@ -83,7 +83,7 @@ impl Lowlink {
     ///
     /// Panics if the node has no assigned lowlink
     #[track_caller]
-    pub(super) fn get(&self, Index(node): Index) -> Root {
+    pub(crate) fn get(&self, Index(node): Index) -> Root {
         let root = self.0.borrow()[node];
         assert_ne!(root, usize::MAX, "node has no lowlink assigned");
         Root(root)
@@ -91,7 +91,7 @@ impl Lowlink {
 
     /// Check if a node is its own lowlink root
     #[track_caller]
-    pub(super) fn is_root(&self, Index(node): Index) -> bool {
+    pub(crate) fn is_root(&self, Index(node): Index) -> bool {
         self.0.borrow()[node] == node
     }
 
@@ -99,7 +99,7 @@ impl Lowlink {
     ///
     /// Panics if the node already has an assigned root
     #[track_caller]
-    pub(super) fn set(&self, Index(node): Index, Root(root): Root) {
+    pub(crate) fn set(&self, Index(node): Index, Root(root): Root) {
         assert_eq!(self.0.borrow()[node], usize::MAX, "lowlink is already set");
         self.0.borrow_mut()[node] = root;
     }
@@ -107,7 +107,7 @@ impl Lowlink {
     /// Update a node's lowlink root if the new one is better (lower) than the
     /// current one
     #[track_caller]
-    pub(super) fn update(&self, Index(node): Index, Root(new): Root) {
+    pub(crate) fn update(&self, Index(node): Index, Root(new): Root) {
         let current = self.0.borrow()[node];
         self.0.borrow_mut()[node] = usize::min(current, new);
     }

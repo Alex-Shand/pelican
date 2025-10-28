@@ -7,7 +7,8 @@ edition = "2024"
 ena = "0.14.3"
 genawaiter = "0.99.1"
 thiserror = "2.0.17"
-trivial = { git = "https://github.com/Alex-Shand/trivial.git" }
+value-type = { git = "https://github.com/Alex-Shand/value-type.git", version = "0.1.0" }
 
 [dev-dependencies]
 pretty_assertions = "1.4.1"
+im = { version = "15.1.0", features = ["debug"] }

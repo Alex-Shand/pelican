@@ -1,32 +1,23 @@
 use std::collections::{HashMap, HashSet};
 
-use trivial::{Claim as _, Trivial, TrivialBox};
+use value_type::value_type;
 
-use crate::{
-    map::Map,
-    unification::{Table, Unify, ValueOrVar, Var},
-};
+use crate::unification::{Table, Unify, ValueOrVar, Var};
 
 // Input for the typechecker, untyped lambda calculus-ish
 //
 // Contains variables, Single argument functions, Function Call and a Unit value
-#[derive(Debug, Trivial)]
-pub(super) enum Ast {
+#[value_type]
+pub(crate) enum Ast {
     Unit,
     Var(usize),
-    Function {
-        arg: usize,
-        body: TrivialBox<Ast>,
-    },
-    Call {
-        subject: TrivialBox<Ast>,
-        arg: TrivialBox<Ast>,
-    },
+    Function { arg: usize, body: Box<Ast> },
+    Call { subject: Box<Ast>, arg: Box<Ast> },
 }
 
 // Output, Identical except we now know the type of everything
-#[derive(Debug, PartialEq)]
-pub(super) enum TypedAst {
+#[value_type]
+pub(crate) enum TypedAst {
     // Unit's type is always known, so no need to record it
     Unit,
     Var(usize, ValueOrVar<Type>),
@@ -73,12 +64,12 @@ impl TypedAst {
 }
 
 // Types
-#[derive(Debug, PartialEq, Eq, Trivial)]
-pub(super) enum Type {
+#[value_type]
+pub(crate) enum Type {
     Unit,
     Function {
-        arg: TrivialBox<ValueOrVar<Self>>,
-        ret: TrivialBox<ValueOrVar<Self>>,
+        arg: Box<ValueOrVar<Self>>,
+        ret: Box<ValueOrVar<Self>>,
     },
 }
 
@@ -119,6 +110,7 @@ impl Type {
                         }
                     }
                 }
+                // Otherwise we're good
                 false
             }
         }
@@ -128,16 +120,16 @@ impl Type {
         match typ {
             Type::Unit => Type::Unit,
             Type::Function { arg, ret } => Type::Function {
-                arg: TrivialBox::new(arg.take().resolve(types, Self::walk)),
-                ret: TrivialBox::new(ret.take().resolve(types, Self::walk)),
+                arg: Box::new(arg.resolve(types, Self::walk)),
+                ret: Box::new(ret.resolve(types, Self::walk)),
             },
         }
     }
 }
 
 // Type errors
-#[derive(Debug, PartialEq)]
-pub(super) enum TypeError {
+#[value_type]
+pub(crate) enum TypeError {
     IncompatibleTypes(Type, Type),
     InfiniteType(Var, Type),
 }
@@ -150,16 +142,18 @@ impl Unify for Type {
         right: ValueOrVar<Type>,
         unifier: &mut crate::unification::Unifier<Self>,
     ) -> Result<(), Self::Error> {
-        let mut unifier = Unifier(unifier);
-        unifier.unify_typ(left, right)
+        Unifier(unifier).unify_typ(left, right)
     }
 
     // We only allow concrete types to unify if they are equal
-    fn merge(left: Self, right: Self) -> Result<Self, Self::Error> {
+    fn merge(left: &Self, right: &Self) -> Result<Self, Self::Error> {
         if left != right {
-            return Err(TypeError::IncompatibleTypes(left, right));
+            return Err(TypeError::IncompatibleTypes(
+                left.clone(),
+                right.clone(),
+            ));
         }
-        Ok(left)
+        Ok(left.clone())
     }
 }
 
@@ -175,11 +169,9 @@ impl Unifier<'_> {
             ValueOrVar::Value(Type::Unit) => ValueOrVar::Value(Type::Unit),
             // Functions are piecewise normalized
             ValueOrVar::Value(Type::Function { arg, ret }) => {
-                let arg = self.normalize(arg.take());
-                let ret = self.normalize(ret.take());
                 ValueOrVar::Value(Type::Function {
-                    arg: TrivialBox::new(arg),
-                    ret: TrivialBox::new(ret),
+                    arg: Box::new(self.normalize(*arg)),
+                    ret: Box::new(self.normalize(*ret)),
                 })
             }
             // To normalize a variable we probe the unifier. This either returns
@@ -213,8 +205,8 @@ impl Unifier<'_> {
                     ret: right_ret,
                 }),
             ) => {
-                self.unify_typ(left_arg.take(), right_arg.take())?;
-                self.unify_typ(left_ret.take(), right_ret.take())
+                self.unify_typ(*left_arg, *right_arg)?;
+                self.unify_typ(*left_ret, *right_ret)
             }
             (ValueOrVar::Var(left), ValueOrVar::Var(right)) => {
                 self.0.unify_var_var(left, right)
@@ -257,7 +249,7 @@ impl Engine {
     // Bottom up type inference
     fn infer(
         &mut self,
-        env: Map<usize, ValueOrVar<Type>>,
+        env: im::HashMap<usize, ValueOrVar<Type>>,
         ast: Ast,
     ) -> (TypedAst, ValueOrVar<Type>) {
         match ast {
@@ -267,8 +259,8 @@ impl Engine {
             // We don't deal with the possibility that the variable doesn't
             // exist
             Ast::Var(v) => {
-                let typ = env.get(v).unwrap();
-                (TypedAst::Var(v, typ.dup()), typ.dup())
+                let typ = &env[&v];
+                (TypedAst::Var(v, typ.clone()), typ.clone())
             }
             Ast::Function { arg, body } => {
                 // Crate a new type variable for the argument type
@@ -279,7 +271,7 @@ impl Engine {
                 // the argument variable which we can use to figure out what
                 // type it needs to be
                 let env = env.update(arg, ValueOrVar::Var(arg_var));
-                let (body, ret) = self.infer(env, body.take());
+                let (body, ret) = self.infer(env, *body);
                 (
                     TypedAst::Function {
                         arg,
@@ -287,24 +279,24 @@ impl Engine {
                         body: Box::new(body),
                     },
                     ValueOrVar::Value(Type::Function {
-                        arg: TrivialBox::new(ValueOrVar::Var(arg_var)),
-                        ret: TrivialBox::new(ret),
+                        arg: Box::new(ValueOrVar::Var(arg_var)),
+                        ret: Box::new(ret),
                     }),
                 )
             }
             Ast::Call { subject, arg } => {
                 // Start by figuring out the type of the argument to the call
-                let (arg, arg_typ) = self.infer(env.claim(), arg.take());
+                let (arg, arg_typ) = self.infer(env.clone(), *arg);
 
                 // We know the subject must be a function so we make one with
                 // the argument type we inferred and a fresh variable for the
                 // return type and check the subject top-down
                 let ret = self.0.var();
                 let typ = ValueOrVar::Value(Type::Function {
-                    arg: TrivialBox::new(arg_typ),
-                    ret: TrivialBox::new(ValueOrVar::Var(ret)),
+                    arg: Box::new(arg_typ),
+                    ret: Box::new(ValueOrVar::Var(ret)),
                 });
-                let subject = self.check(env, subject.take(), typ);
+                let subject = self.check(env, *subject, typ);
                 (
                     TypedAst::Call {
                         subject: Box::new(subject),
@@ -320,7 +312,7 @@ impl Engine {
     // Top down type checking
     fn check(
         &mut self,
-        env: Map<usize, ValueOrVar<Type>>,
+        env: im::HashMap<usize, ValueOrVar<Type>>,
         ast: Ast,
         typ: ValueOrVar<Type>,
     ) -> TypedAst {
@@ -334,11 +326,11 @@ impl Engine {
             ) => {
                 // ... if the body type-checks against the expected return type
                 // with the argument bound to the expected argument type
-                let env = env.update(arg, arg_type.dup().take());
-                let body = self.check(env, body.take(), ret.take());
+                let env = env.update(arg, *arg_type.clone());
+                let body = self.check(env, *body, *ret);
                 TypedAst::Function {
                     arg,
-                    arg_type: arg_type.take(),
+                    arg_type: *arg_type,
                     body: Box::new(body),
                 }
             }
@@ -357,11 +349,11 @@ impl Engine {
     }
 }
 
-pub(super) fn infer(
+pub(crate) fn infer(
     ast: Ast,
 ) -> Result<(TypedAst, ValueOrVar<Type>, HashSet<Var>), TypeError> {
     let mut engine = Engine::new();
-    let (ast, typ) = engine.infer(Map::new(), ast);
+    let (ast, typ) = engine.infer(im::HashMap::new(), ast);
     let types = engine.unify()?;
     let unbound = types
         .iter()

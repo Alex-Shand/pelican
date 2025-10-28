@@ -13,9 +13,7 @@ impl From<Var> for ValueOrVar<Type> {
     }
 }
 
-pub(super) mod ast {
-    use trivial::TrivialBox;
-
+pub(crate) mod ast {
     use crate::unification::tests::lambda::implementation::Ast;
 
     pub(crate) fn unit() -> Ast {
@@ -29,21 +27,19 @@ pub(super) mod ast {
     pub(crate) fn function(arg: usize, body: Ast) -> Ast {
         Ast::Function {
             arg,
-            body: TrivialBox::new(body),
+            body: Box::new(body),
         }
     }
 
     pub(crate) fn call(subject: Ast, arg: Ast) -> Ast {
         Ast::Call {
-            subject: TrivialBox::new(subject),
-            arg: TrivialBox::new(arg),
+            subject: Box::new(subject),
+            arg: Box::new(arg),
         }
     }
 }
 
-pub(super) mod mono_typ {
-    use trivial::TrivialBox;
-
+pub(crate) mod mono_typ {
     use crate::unification::{ValueOrVar, tests::lambda::implementation::Type};
 
     pub(crate) fn unit() -> Type {
@@ -55,13 +51,13 @@ pub(super) mod mono_typ {
         ret: impl Into<ValueOrVar<Type>>,
     ) -> Type {
         Type::Function {
-            arg: TrivialBox::new(arg.into()),
-            ret: TrivialBox::new(ret.into()),
+            arg: Box::new(arg.into()),
+            ret: Box::new(ret.into()),
         }
     }
 }
 
-pub(super) mod typ {
+pub(crate) mod typ {
     use super::mono_typ;
     use crate::unification::{ValueOrVar, tests::lambda::implementation::Type};
 
@@ -77,7 +73,7 @@ pub(super) mod typ {
     }
 }
 
-pub(super) mod typed {
+pub(crate) mod typed {
     use crate::unification::{
         ValueOrVar,
         tests::lambda::implementation::{Type, TypedAst},
@@ -117,9 +113,7 @@ pub(super) mod typed {
 }
 
 #[allow(non_snake_case)]
-pub(super) mod combinators {
-    use trivial::Trivial as _;
-
+pub(crate) mod combinators {
     use super::ast::*;
     use crate::unification::tests::lambda::implementation::Ast;
 
@@ -186,7 +180,7 @@ pub(super) mod combinators {
             let f = self.next_id();
             let x = self.next_id();
             let inner = function(x, call(var(f), call(var(x), var(x))));
-            function(f, call(inner.dup(), inner))
+            function(f, call(inner.clone(), inner))
         }
     }
 }

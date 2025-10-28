@@ -6,11 +6,12 @@ use std::{
 };
 
 use ena::unify::UnifyKey;
+use value_type::value_type;
 
 use super::{Unify, value::Value};
 
 /// Unification variable
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[value_type(Copy)]
 pub struct Var(pub(crate) u32);
 
 impl fmt::Display for Var {
@@ -25,6 +26,7 @@ impl Var {
     }
 }
 
+#[derive(Clone)]
 pub(crate) struct TypedVar<T: Unify>(u32, PhantomData<T>);
 
 impl<T: Unify> TypedVar<T> {
@@ -40,12 +42,6 @@ impl<T: Unify> fmt::Debug for TypedVar<T> {
 }
 
 impl<T: Unify> Copy for TypedVar<T> {}
-
-impl<T: Unify> Clone for TypedVar<T> {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
 
 impl<T: Unify> PartialEq for TypedVar<T> {
     fn eq(&self, other: &Self) -> bool {

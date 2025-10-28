@@ -6,14 +6,15 @@ use std::{
 };
 
 use genawaiter::rc::Gen;
-use tarjan::Tarjan;
+
+use self::tarjan::Tarjan;
 
 mod tarjan;
 
 #[derive(Debug)]
-pub(crate) struct Graph<Node: Copy + Hash + Eq>(HashMap<Node, HashSet<Node>>);
+pub(crate) struct Graph<Node>(HashMap<Node, HashSet<Node>>);
 
-impl<Node: Copy + Hash + Eq> Default for Graph<Node> {
+impl<Node> Default for Graph<Node> {
     fn default() -> Self {
         Self(HashMap::default())
     }

@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use trivial::Trivial;
+use value_type::value_type;
 
 use self::graph::Graph;
 
@@ -12,7 +12,7 @@ mod tests;
 
 /// Variable representing a table entry, used for recording [facts](Table::fact)
 /// and adding [dependency](Table::dependency) relationships
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[value_type(Copy)]
 pub struct Var(usize);
 
 /// Value in the table
@@ -20,7 +20,7 @@ pub struct Var(usize);
 /// Provides a strategy for merging the values of two dependencies to contribute
 /// to the ultimate value of this entry and a callback which is called if the
 /// table finds a cyclic dependency
-pub trait Value: Trivial + Sized {
+pub trait Value: Sized {
     #[allow(missing_docs)]
     type Error: std::error::Error;
 
@@ -33,7 +33,8 @@ pub trait Value: Trivial + Sized {
 }
 
 /// Returned by [`Table::fact`] if it is called twice with the same [`Var`]
-#[derive(Debug, Copy, Clone, thiserror::Error)]
+#[value_type(Copy)]
+#[derive(thiserror::Error)]
 #[error("Duplicate entry for {0:?} in facts table")]
 pub struct DuplicateFactError(pub Var);
 
@@ -50,13 +51,13 @@ pub enum Error<E: std::error::Error> {
 
 /// Iterative substitution table
 #[expect(missing_debug_implementations)]
-pub struct Table<T: Value> {
+pub struct Table<T> {
     next_var: usize,
     known: HashMap<Var, T>,
     unknown: HashMap<Var, HashSet<Var>>,
 }
 
-impl<T: Value> Default for Table<T> {
+impl<T> Default for Table<T> {
     fn default() -> Self {
         Self {
             next_var: 0,
@@ -66,7 +67,7 @@ impl<T: Value> Default for Table<T> {
     }
 }
 
-impl<T: Value> Table<T> {
+impl<T: Clone> Table<T> {
     /// Constructor
     #[must_use]
     pub fn new() -> Self {
@@ -169,7 +170,10 @@ impl<T: Value> Table<T> {
     }
 
     /// Resolve the declared dependencies in the table
-    pub fn resolve(self) -> Result<HashMap<Var, T>, Error<T::Error>> {
+    pub fn resolve(self) -> Result<HashMap<Var, T>, Error<T::Error>>
+    where
+        T: Value,
+    {
         // This is the table of resolved information, the goal is to move all of
         // the variables into this table. We start by populating it with our
         // initial set of facts
@@ -254,7 +258,7 @@ impl<T: Value> Table<T> {
     // dependency on each of the non-component nodes dependended on by any node
     // in the component.
     //
-    // Finally consider incomming dependency edges. After collapsing the
+    // Finally consider incoming dependency edges. After collapsing the
     // component into a single node we could go through the entire graph and
     // patch up any dependency edge targeting any component node to refer
     // instead to the virtual node. This is awkward though since we index edges
@@ -265,7 +269,7 @@ impl<T: Value> Table<T> {
     // the proposed virtual node (e.g with a direct dependency for each edge
     // leaving the component and one recursive dependency edge). This has the
     // same affect as the virtual node approach but means we don't need to patch
-    // up incomming edges or translate the virtual node(s) back to the original
+    // up incoming edges or translate the virtual node(s) back to the original
     // nodes after inference
     fn prepare_partials(
         unknown: HashMap<Var, HashSet<Var>>,
@@ -333,11 +337,14 @@ enum TryResolveResult<T> {
     Incomplete(Partial<T>, bool),
 }
 
-impl<T: Value> Partial<T> {
+impl<T: Clone> Partial<T> {
     fn try_resolve(
         self,
         known: &HashMap<Var, T>,
-    ) -> Result<TryResolveResult<T>, Error<T::Error>> {
+    ) -> Result<TryResolveResult<T>, Error<T::Error>>
+    where
+        T: Value,
+    {
         let Self {
             recursive,
             result,
@@ -346,11 +353,10 @@ impl<T: Value> Partial<T> {
         let mut new_result = None;
         let mut new_dependencies = HashSet::new();
         for dep in dependencies {
-            // If we have a value for the variable we merge it into the result
-            // (this does the right thing regardless of whether the var is in
-            // known)
+            // If we have a value for the variable we merge it into the result,
+            // otherwise it goes back in the dependency set
             if let Some(known) = known.get(&dep) {
-                new_result = Self::merge_opt(new_result, Some(known.dup()))?;
+                new_result = merge_opt(new_result, Some(known.clone()))?;
             } else {
                 let _ = new_dependencies.insert(dep);
             }
@@ -359,7 +365,7 @@ impl<T: Value> Partial<T> {
         // If new_result contains something then we learned something new from
         // this pass
         let progressed = new_result.is_some();
-        let result = Self::merge_opt(result, new_result)?;
+        let result = merge_opt(result, new_result)?;
 
         // If we still have dependencies to resolve the result is always
         // Incomplete
@@ -388,16 +394,16 @@ impl<T: Value> Partial<T> {
 
         Ok(TryResolveResult::Complete(result))
     }
+}
 
-    fn merge_opt(
-        left: Option<T>,
-        right: Option<T>,
-    ) -> Result<Option<T>, T::Error> {
-        match (left, right) {
-            (None, None) => Ok(None),
-            (Some(left), None) => Ok(Some(left)),
-            (None, Some(right)) => Ok(Some(right)),
-            (Some(left), Some(right)) => Ok(Some(T::merge(left, right)?)),
-        }
+fn merge_opt<T: Value>(
+    left: Option<T>,
+    right: Option<T>,
+) -> Result<Option<T>, T::Error> {
+    match (left, right) {
+        (None, None) => Ok(None),
+        (Some(left), None) => Ok(Some(left)),
+        (None, Some(right)) => Ok(Some(right)),
+        (Some(left), Some(right)) => Ok(Some(T::merge(left, right)?)),
     }
 }

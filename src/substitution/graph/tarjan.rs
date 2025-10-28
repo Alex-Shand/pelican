@@ -13,7 +13,7 @@ mod index_map;
 mod lowlink;
 mod stack;
 
-pub(super) struct Tarjan<'a, Node: Copy + Hash + Eq> {
+pub(crate) struct Tarjan<'a, Node> {
     co: &'a Co<HashSet<Node>>,
     graph: &'a Graph<Node>,
     index_map: IndexMap<Node>,
@@ -22,7 +22,7 @@ pub(super) struct Tarjan<'a, Node: Copy + Hash + Eq> {
 }
 
 impl<'a, Node: Copy + Hash + Eq> Tarjan<'a, Node> {
-    pub(super) fn new(
+    pub(crate) fn new(
         co: &'a Co<HashSet<Node>>,
         graph: &'a Graph<Node>,
     ) -> Self {
@@ -40,7 +40,7 @@ impl<Node: Copy + Hash + Eq> Tarjan<'_, Node> {
     /// Tarjan strongly connected component algorithm
     ///
     /// See [Lowlink] for an explanation of the algorithm
-    pub(super) async fn tarjan(&self) {
+    pub(crate) async fn tarjan(&self) {
         for node in self.graph.nodes() {
             if !self.index_map.contains(node) {
                 let _ = self.tarjan_inner(node).await;

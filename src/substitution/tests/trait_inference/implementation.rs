@@ -7,10 +7,10 @@ use crate::substitution::{Error, Table, Value, Var};
 /// children, they have The Property (TM) either if they have no children or if
 /// all of their children have The Property (TM)
 #[derive(Debug, Clone)]
-pub(super) struct Ast(pub(super) HashMap<usize, Node>);
+pub(crate) struct Ast(pub(crate) HashMap<usize, Node>);
 
 #[derive(Debug, Clone)]
-pub(super) enum Node {
+pub(crate) enum Node {
     Leaf(bool),
     Internal(Vec<usize>),
 }
@@ -18,9 +18,10 @@ pub(super) enum Node {
 /// Output, tracks for both internal and external nodes whether they have The
 /// Property (TM)
 #[derive(Debug, PartialEq)]
-pub(super) struct TypedAst(pub(super) HashMap<usize, TypedNode>);
+pub(crate) struct TypedAst(pub(crate) HashMap<usize, TypedNode>);
+
 #[derive(Debug, PartialEq)]
-pub(super) enum TypedNode {
+pub(crate) enum TypedNode {
     Leaf(bool),
     Internal(Vec<usize>, bool),
 }
@@ -80,12 +81,9 @@ impl Engine {
                 }
             }
         }
-        dbg!(&self.table.known);
-        dbg!(&self.table.unknown);
 
         // Resolve
         let result = self.table.resolve()?;
-        dbg!(&result);
 
         // Substitute the original ids
         let mut var_to_id = self
@@ -111,12 +109,11 @@ impl Engine {
     }
 }
 
-pub(super) fn infer(ast: Ast) -> Result<TypedAst, Error<Infallible>> {
+pub(crate) fn infer(ast: Ast) -> Result<TypedAst, Error<Infallible>> {
     let resolved = Engine::new().resolve(&ast)?;
 
     let mut result = HashMap::new();
     for (id, node) in ast.0 {
-        dbg!(id);
         let node = match node {
             Node::Leaf(expected) => {
                 let actual = resolved[&id];

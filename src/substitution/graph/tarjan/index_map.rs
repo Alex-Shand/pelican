@@ -8,10 +8,10 @@ use super::lowlink::Root;
 /// This one is the primary handle used to manipulate nodes throughout the
 /// algorithm
 #[derive(Copy, Clone)]
-pub(super) struct Index(pub(super) usize);
+pub(crate) struct Index(pub(crate) usize);
 
 impl Index {
-    pub(super) fn into_root(self) -> Root {
+    pub(crate) fn into_root(self) -> Root {
         Root(self.0)
     }
 }
@@ -22,9 +22,9 @@ impl Index {
 /// the nodes themselves are just newtyped integers, we require the property
 /// that for any two nodes, the one we encounter earlier has a smaller index
 /// than the one encountered later. See [`Lowlink`](super::lowlink::Lowlink)
-pub(super) struct IndexMap<Node: Copy + Hash + Eq>(RefCell<Inner<Node>>);
+pub(crate) struct IndexMap<Node>(RefCell<Inner<Node>>);
 
-struct Inner<Node: Copy + Hash + Eq> {
+struct Inner<Node> {
     next_index: usize,
     forward: HashMap<Node, usize>,
     backward: HashMap<usize, Node>,

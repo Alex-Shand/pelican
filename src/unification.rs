@@ -1,11 +1,11 @@
 //! Unification table
 
-use std::{collections::HashMap, fmt, mem, ops::Range};
+use std::{collections::HashMap, fmt::Debug, mem, ops::Range};
 
 use ena::unify::{
     InPlace, InPlaceUnificationTable, Snapshot, UnificationTable,
 };
-use trivial::Trivial;
+use value_type::value_type;
 
 pub use self::var::Var;
 use self::{value::Value, var::TypedVar};
@@ -16,7 +16,7 @@ mod value;
 mod var;
 
 /// Defines how to unify two values in the table
-pub trait Unify: fmt::Debug + Trivial + Sized {
+pub trait Unify: Debug + Clone {
     /// Error returned if unification fails
     type Error;
 
@@ -36,7 +36,7 @@ pub trait Unify: fmt::Debug + Trivial + Sized {
     ///
     /// If unification tries to unify two sets which have both been resolved to
     /// concrete values, this method is called to produce the new value
-    fn merge(left: Self, right: Self) -> Result<Self, Self::Error>;
+    fn merge(left: &Self, right: &Self) -> Result<Self, Self::Error>;
 }
 
 /// Unification table
@@ -124,7 +124,7 @@ impl<T: Unify> Unifier<T> {
     pub fn probe(&mut self, var: Var) -> ValueOrVar<T> {
         let var = var.annotate();
         match self.0.unification_table.probe_value(var) {
-            Some(Value(ty)) => ValueOrVar::Value(ty),
+            Some(Value(value)) => ValueOrVar::Value(value),
             None => ValueOrVar::Var(self.0.unification_table.find(var).erase()),
         }
     }
@@ -133,13 +133,13 @@ impl<T: Unify> Unifier<T> {
     ///
     /// Unifying two variables has three possible outcomes
     /// * If both variables have never unified with a concrete value one of them
-    ///   will resolve to the other from now on
+    ///   will resolve to the other from now on.
     /// * If one variable is resolved to a concrete value and the other isn't
     ///   then the unresolved variable will now resolve to the same concrete
-    ///   value
+    ///   value.
     /// * If both variables are resolved to concrete values then the values's
     ///   [`Unify::merge`] is called to either merge the two values or produce an
-    ///   error
+    ///   error.
     pub fn unify_var_var(
         &mut self,
         left: Var,
@@ -157,7 +157,7 @@ impl<T: Unify> Unifier<T> {
     /// it) will resolve to the value from now on.
     ///
     /// If the variable has unified with a concrete value then the values's
-    /// [`Unify::merge`] will be called to either meger the two types or produce
+    /// [`Unify::merge`] will be called to either merge the two types or produce
     /// an error
     pub fn unify_var_value(
         &mut self,
@@ -171,30 +171,22 @@ impl<T: Unify> Unifier<T> {
 }
 
 /// Wrapper for a concrete value or a unification variable
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum ValueOrVar<T: Trivial> {
+#[value_type]
+pub enum ValueOrVar<T> {
     #[allow(missing_docs)]
     Value(T),
     #[allow(missing_docs)]
     Var(Var),
 }
 
-impl<T: Trivial> Trivial for ValueOrVar<T> {
-    fn dup(&self) -> Self {
-        match self {
-            ValueOrVar::Value(value) => ValueOrVar::Value(value.dup()),
-            ValueOrVar::Var(var) => ValueOrVar::Var(*var),
-        }
-    }
-}
-
 /// Error returned from [`ValueOrVar::resolve_mono`] if the value cannot be
 /// resolved to a monomorphic type
-#[derive(Debug, Clone, Copy, thiserror::Error)]
+#[value_type(Copy)]
+#[derive(thiserror::Error)]
 #[error("Unresolved unification variable {0}")]
 pub struct UnresolvedVariableError(Var);
 
-impl<T: Trivial> ValueOrVar<T> {
+impl<T: Clone> ValueOrVar<T> {
     /// Resolve a polymorphic value to it's canonical representation based on the
     /// map returned by [`Table::unify`]
     #[must_use]
@@ -203,22 +195,19 @@ impl<T: Trivial> ValueOrVar<T> {
         table: &HashMap<Var, ValueOrVar<T>>,
         walk: impl Fn(T, &HashMap<Var, ValueOrVar<T>>) -> T,
     ) -> Self {
-        let result = match self {
-            value @ ValueOrVar::Value(_) => value,
-            ValueOrVar::Var(var) => table[&var].dup(),
-        };
-        match result {
+        match self {
             ValueOrVar::Value(value) => ValueOrVar::Value(walk(value, table)),
-            var @ ValueOrVar::Var(_) => var,
+            ValueOrVar::Var(var) => match &table[&var] {
+                ValueOrVar::Value(value) => {
+                    ValueOrVar::Value(walk(value.clone(), table))
+                }
+                ValueOrVar::Var(var) => ValueOrVar::Var(*var),
+            },
         }
     }
 
     /// Resolve a polymorphic value to it's canonical monomorphic representation
     /// based on the type map returned by [`Table::unify`]
-    ///
-    /// # Errors
-    /// An error is returned if the value has no monomorphic representation
-    /// e.g it has at least one unbound variable.
     pub fn resolve_mono(
         self,
         types: &HashMap<Var, ValueOrVar<T>>,
@@ -230,7 +219,7 @@ impl<T: Trivial> ValueOrVar<T> {
         match self {
             ValueOrVar::Value(value) => walk(value, types),
             ValueOrVar::Var(var) => match &types[&var] {
-                ValueOrVar::Value(value) => walk(value.dup(), types),
+                ValueOrVar::Value(value) => walk(value.clone(), types),
                 ValueOrVar::Var(var) => Err(UnresolvedVariableError(*var)),
             },
         }
