@@ -138,7 +138,7 @@ dependencies = [
 [[package]]
 name = "proc"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#b49dab419dd7cd269fc720d28c73382b1abcdea3"
+source = "git+https://github.com/Alex-Shand/proc.git#40636cc6217ab028ab9f0fbbf19ebfd356ea5544"
 dependencies = [
  "proc_attribute",
  "proc_common",
@@ -200,7 +200,7 @@ dependencies = [
 [[package]]
 name = "proc_attribute"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#b49dab419dd7cd269fc720d28c73382b1abcdea3"
+source = "git+https://github.com/Alex-Shand/proc.git#40636cc6217ab028ab9f0fbbf19ebfd356ea5544"
 dependencies = [
  "proc_common",
 ]
@@ -208,7 +208,7 @@ dependencies = [
 [[package]]
 name = "proc_common"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#b49dab419dd7cd269fc720d28c73382b1abcdea3"
+source = "git+https://github.com/Alex-Shand/proc.git#40636cc6217ab028ab9f0fbbf19ebfd356ea5544"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -220,7 +220,7 @@ dependencies = [
 [[package]]
 name = "proc_derive"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#b49dab419dd7cd269fc720d28c73382b1abcdea3"
+source = "git+https://github.com/Alex-Shand/proc.git#40636cc6217ab028ab9f0fbbf19ebfd356ea5544"
 dependencies = [
  "convert_case",
  "proc_attribute",
@@ -230,7 +230,7 @@ dependencies = [
 [[package]]
 name = "proc_function"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#b49dab419dd7cd269fc720d28c73382b1abcdea3"
+source = "git+https://github.com/Alex-Shand/proc.git#40636cc6217ab028ab9f0fbbf19ebfd356ea5544"
 dependencies = [
  "proc_attribute",
  "proc_common",
@@ -239,7 +239,7 @@ dependencies = [
 [[package]]
 name = "proc_parse"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#b49dab419dd7cd269fc720d28c73382b1abcdea3"
+source = "git+https://github.com/Alex-Shand/proc.git#40636cc6217ab028ab9f0fbbf19ebfd356ea5544"
 dependencies = [
  "proc_common",
  "proc_derive",
@@ -414,7 +414,7 @@ checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
 [[package]]
 name = "value-type"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/value-type.git#19d317a5137733d73eb281818b8f409428af4b36"
+source = "git+https://github.com/Alex-Shand/value-type.git#302151f4679db44e65676588a204db6c982c25e1"
 dependencies = [
  "proc",
 ]
