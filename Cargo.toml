@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-ena = "0.14.3"
+ena = "0.14.4"
 genawaiter = "0.99.1"
 thiserror = "2.0.18"
 value-type = { git = "https://github.com/Alex-Shand/value-type.git", version = "0.1.0" }
