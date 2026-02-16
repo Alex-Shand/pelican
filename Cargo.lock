@@ -414,7 +414,7 @@ checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
 [[package]]
 name = "value-type"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/value-type.git#1003d1ca2429c4ef1f89afdba652fde545fcdf17"
+source = "git+https://github.com/Alex-Shand/value-type.git#ccda2bdba7a243ace0a286d4abe00d9c4a114e90"
 dependencies = [
  "proc",
 ]
