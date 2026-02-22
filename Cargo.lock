@@ -138,7 +138,7 @@ dependencies = [
 [[package]]
 name = "proc"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#4e4bb05d377983943a8b8e5494300a8cffe8b362"
+source = "git+https://github.com/Alex-Shand/proc.git#69a92f5cb9cc502b91ba651df2be579bb053cec6"
 dependencies = [
  "proc_attribute",
  "proc_common",
@@ -200,7 +200,7 @@ dependencies = [
 [[package]]
 name = "proc_attribute"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#4e4bb05d377983943a8b8e5494300a8cffe8b362"
+source = "git+https://github.com/Alex-Shand/proc.git#69a92f5cb9cc502b91ba651df2be579bb053cec6"
 dependencies = [
  "proc_common",
 ]
@@ -208,19 +208,19 @@ dependencies = [
 [[package]]
 name = "proc_common"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#4e4bb05d377983943a8b8e5494300a8cffe8b362"
+source = "git+https://github.com/Alex-Shand/proc.git#69a92f5cb9cc502b91ba651df2be579bb053cec6"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
  "quote",
  "sealed",
- "syn 2.0.114",
+ "syn 2.0.117",
 ]
 
 [[package]]
 name = "proc_derive"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#4e4bb05d377983943a8b8e5494300a8cffe8b362"
+source = "git+https://github.com/Alex-Shand/proc.git#69a92f5cb9cc502b91ba651df2be579bb053cec6"
 dependencies = [
  "convert_case",
  "proc_attribute",
@@ -230,7 +230,7 @@ dependencies = [
 [[package]]
 name = "proc_function"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#4e4bb05d377983943a8b8e5494300a8cffe8b362"
+source = "git+https://github.com/Alex-Shand/proc.git#69a92f5cb9cc502b91ba651df2be579bb053cec6"
 dependencies = [
  "proc_attribute",
  "proc_common",
@@ -239,7 +239,7 @@ dependencies = [
 [[package]]
 name = "proc_parse"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/proc.git#4e4bb05d377983943a8b8e5494300a8cffe8b362"
+source = "git+https://github.com/Alex-Shand/proc.git#69a92f5cb9cc502b91ba651df2be579bb053cec6"
 dependencies = [
  "proc_common",
  "proc_derive",
@@ -277,7 +277,7 @@ checksum = "22f968c5ea23d555e670b449c1c5e7b2fc399fdaec1d304a17cd48e288abc107"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.114",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -297,7 +297,7 @@ checksum = "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.114",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -323,9 +323,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.114"
+version = "2.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4d107df263a3013ef9b1879b0df87d706ff80f65a86ea879bd9c31f9b307c2a"
+checksum = "e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -360,7 +360,7 @@ checksum = "ebc4ee7f67670e9b64d05fa4253e753e016c6c95ff35b89b7941d6b856dec1d5"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.114",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -414,7 +414,7 @@ checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
 [[package]]
 name = "value-type"
 version = "0.1.0"
-source = "git+https://github.com/Alex-Shand/value-type.git#ccda2bdba7a243ace0a286d4abe00d9c4a114e90"
+source = "git+https://github.com/Alex-Shand/value-type.git#5ae239d506d65af737e4f15344d3e903e5b7175c"
 dependencies = [
  "proc",
 ]
